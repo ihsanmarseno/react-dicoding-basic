@@ -1,22 +1,23 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { useState, useEffect } from 'react';
-import { Card } from 'react-bootstrap';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useState, useEffect } from "react";
+import { Card } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import { getInitialData, showFormattedDate } from "./utils";
 
 function App() {
   const getDatafromLS = () => {
-    const data = localStorage.getItem('notes');
-    return data ? JSON.parse(data) : [];
+    const data = localStorage.getItem("notes");
+    return data ? JSON.parse(data) : getInitialData();
   };
 
   const setDataToLS = (data) => {
-    localStorage.setItem('notes', JSON.stringify(data));
+    localStorage.setItem("notes", JSON.stringify(data));
   };
 
   const [notes, setNotes] = useState(getDatafromLS);
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
 
   const handleAddNote = (e) => {
     e.preventDefault();
@@ -30,8 +31,8 @@ function App() {
     };
     setNotes([...notes, newNote]);
     setDataToLS([...notes, newNote]);
-    setTitle('');
-    setBody('');
+    setTitle("");
+    setBody("");
   };
 
   const handleDeleteNote = (id) => {
@@ -41,13 +42,20 @@ function App() {
   };
 
   useEffect(() => {
+    // Set initial data when the component mounts
+    const initialData = getInitialData();
+    setNotes(initialData);
+    setDataToLS(initialData);
+  }, []);
+
+  useEffect(() => {
     setDataToLS(notes);
   }, [notes]);
 
   return (
     <>
-      <h1 className='m-5 text-5xl'>Selamat Datang di Aplikasi Catatanku</h1>
-      <Form className='m-5' onSubmit={handleAddNote}>
+      <h1 className="m-5 text-5xl">Selamat Datang di Aplikasi Catatanku</h1>
+      <Form className="m-5" onSubmit={handleAddNote}>
         <Form.Group className="mb-3">
           <Form.Label>Judul Catatan</Form.Label>
           <Form.Control
@@ -63,7 +71,7 @@ function App() {
           <Form.Control
             as="textarea"
             rows={3}
-            placeholder='Masukkan Deskripsi Catatan'
+            placeholder="Masukkan Deskripsi Catatan"
             value={body}
             onChange={(e) => setBody(e.target.value)}
           />
@@ -82,8 +90,15 @@ function App() {
             <Card key={note.id} className="mb-3">
               <Card.Body>
                 <Card.Title>{note.title}</Card.Title>
-                <Card.Text className='mb-4'>{note.body}</Card.Text>
-                <Button variant="danger" onClick={() => handleDeleteNote(note.id)} className='bg-red'>
+                <Card.Text className="mb-4">{note.body}</Card.Text>
+                <p className="text-muted">
+                  {showFormattedDate(note.createdAt)}
+                </p>
+                <Button
+                  variant="danger"
+                  onClick={() => handleDeleteNote(note.id)}
+                  className="bg-red"
+                >
                   Hapus
                 </Button>
               </Card.Body>
